@@ -1,43 +1,86 @@
 from flask import Flask, request, jsonify
 from twilio.rest import Client
 import os
+import requests
+from os import access
+import jwt.utils
+import time
+import math
+import random
 
 app = Flask(__name__)
 
-TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
-TWILIO_AUTH_TOKEN = os.environ.get('TWILIO_AUTH_TOKEN')
+
+developer_id = 'your_developer_id'
+key_id = 'your_key_id'
+signing_secret = 'your_signing_secret'
 
 
 # Function to send assignment message to driver via Twilio
-def send_assignment_message(assignment_details):
+def query_driver(store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_phone):
+    
+    external_delivery_id = random.randint(1000, 9999)
 
-    account_sid = os.environ['TWILIO_ACCOUNT_SID']
-    auth_token = os.environ['TWILIO_AUTH_TOKEN']
-    client = Client(account_sid, auth_token)
+    accessKey = {
+        "developer_id": developer_id, 
+        "key_id": key_id,
+        "signing_secret": signing_secret
+    }
 
-    message = client.messages \
-                    .create(
-                        body={assignment_details},
-                        from_='+18447953246',
-                        to='+14693604599'
-                    )
+    token = jwt.encode(
+        {
+            "aud": "doordash",
+            "iss": accessKey["developer_id"],
+            "kid": accessKey["key_id"],
+            "exp": str(math.floor(time.time() + 300)),
+            "iat": str(math.floor(time.time())),
+        },
+        jwt.utils.base64url_decode(accessKey["signing_secret"]),
+        algorithm="HS256",
+        headers={"dd-ver": "DD-JWT-V1"})
 
-    print(message.sid)
+    print(token)
+
+    endpoint = "https://openapi.doordash.com/drive/v2/deliveries/"
+
+    headers = {"Accept-Encoding": "application/json",
+            "Authorization": "Bearer " + token,
+            "Content-Type": "application/json"}
+
+    request_body = { # Modify pickup and drop off addresses below
+        "external_delivery_id": external_delivery_id,
+        "pickup_address": store_location,
+        "pickup_business_name": store_name,
+        "pickup_phone_number": pickup_phone,
+        "dropoff_address": delivery_location,
+        "dropoff_business_name": dropoff_name,
+        "dropoff_phone_number": dropoff_phone,
+    }
+
+    create_delivery = requests.post(endpoint, headers=headers, json=request_body) # Create POST request
+
+
+    print(create_delivery.status_code)
+    print(create_delivery.text)
+    print(create_delivery.reason)
 
     return 'Message sent successfully'
 
 @app.route('/place_order', methods=['POST'])
 def place_order():
     data = request.get_json()
-    order_items = data.get('items')
     store_location = data.get('store_location')
     delivery_location = data.get('delivery_location')
+    store_name = data.get('store_name')
+    pickup_phone = data.get('pickup_phone')
+    dropoff_name = data.get('dropoff_name')
+    dropoff_number = data.get('dropoff_number')
 
-    if not order_items or not store_location or not delivery_location:
+
+    if not all([store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_number]):
         return jsonify({'success': False, 'message': 'Invalid request'}), 400
     else:
-        # send_assignment_message(f"Pick up {order_items} from {store_location} and deliver to {delivery_location}")
-        print(f"Pick up {order_items} from {store_location} and deliver to {delivery_location}")
+        print(query_driver(store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_number))
         
     return jsonify({'success': True, 'message': 'Order placed successfully'}), 200
 
