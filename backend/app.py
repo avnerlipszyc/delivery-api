@@ -7,13 +7,15 @@ import jwt.utils
 import time
 import math
 import random
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 
-developer_id = 'your_developer_id'
-key_id = 'your_key_id'
-signing_secret = 'your_signing_secret'
+developer_id = '8e1c7316-e66d-49f9-b915-472e17579dfa'
+key_id = '9654ae50-782f-4576-83da-c019ed861b67'
+signing_secret = 'kSsOCEgGBbJ4vdxsUbDgZFO-3Cr_9sTuLIuJ8fDN6uI'
 
 
 # Function to send assignment message to driver via Twilio
@@ -76,10 +78,10 @@ def place_order():
     dropoff_name = data.get('dropoff_name')
     dropoff_number = data.get('dropoff_number')
 
-
     if not all([store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_number]):
         return jsonify({'success': False, 'message': 'Invalid request'}), 400
     else:
+        # Call your function to send message to driver
         print(query_driver(store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_number))
         
     return jsonify({'success': True, 'message': 'Order placed successfully'}), 200
