@@ -18,6 +18,47 @@ key_id = '9654ae50-782f-4576-83da-c019ed861b67'
 signing_secret = 'kSsOCEgGBbJ4vdxsUbDgZFO-3Cr_9sTuLIuJ8fDN6uI'
 
 
+@app.route('/webhook', methods=['POST'])
+def webhook(store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_phone):
+    payload = request.json
+
+    if not authenticate_webhook(request):
+        return jsonify({'success': False, 'message': 'Authentication failed'}), 401
+
+    print("Received webhook payload:", payload)
+
+    event_name = payload.get('event_name')
+    print(event_name)
+
+    if event_name == 'DASHER_CONFIRMED':
+        pass
+    elif event_name == 'DASHER_CONFIRMED_PICKUP_ARRIVAL':
+        pass
+    elif event_name == 'DASHER_PICKED_UP':
+        pass
+    elif event_name == 'DASHER_CONFIRMED_DROPOFF_ARRIVAL':
+        pass
+    elif event_name == 'DASHER_DROPPED_OFF':
+        pass
+    else:
+        query_driver(store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_phone)
+
+
+    return jsonify({'success': True}), 200
+
+def authenticate_webhook(request):
+    expected_token = 'authorizationforrift'
+    token = request.headers.get('Authorization')
+    if not token:
+        return False
+    
+    if token == expected_token:
+        return True
+    else:
+        return False
+
+
+
 # Function to send assignment message to driver via Twilio
 def query_driver(store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_phone):
     
