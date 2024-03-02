@@ -8,19 +8,60 @@ import time
 import math
 import random
 from flask_cors import CORS
+from twilio.rest import Client
 
 app = Flask(__name__)
 CORS(app)
 
 
-developer_id = ''
-key_id = ''
-signing_secret = ''
+developer_id = '8e1c7316-e66d-49f9-b915-472e17579dfa'
+key_id = '9654ae50-782f-4576-83da-c019ed861b67'
+signing_secret = 'kSsOCEgGBbJ4vdxsUbDgZFO-3Cr_9sTuLIuJ8fDN6uI'
+
+account_sid = 'ACf16c24ad548522c4d85edf1268edf824'
+auth_token = 'b37c169908eb592a8f93ff117fc74b38'
+twilio_phone_number = '+18447953246'
+
+# Function to send assignment message to driver via Twilio
+def send_updates(event_name):
+
+    recipient_phone_number = '+14693604599'
+
+    if event_name == 'DASHER_CONFIRMED':
+        message_body = 'Your order has been confirmed by the driver'
+    elif event_name == 'DASHER_CONFIRMED_PICKUP_ARRIVAL':
+        message_body = 'Your driver has arrived at the store'
+    elif event_name == 'DASHER_PICKED_UP':
+        message_body = 'Your driver has picked up your order'
+    elif event_name == 'DASHER_CONFIRMED_DROPOFF_ARRIVAL':
+        message_body = 'Your driver has arrived at the delivery location'
+    elif event_name == 'DASHER_DROPPED_OFF':
+        message_body = 'Your order has been delivered'
+
+    # Initialize Twilio client
+    client = Client(account_sid, auth_token)
+
+    # Send SMS
+    message = client.messages.create(
+        body=message_body,
+        from_=twilio_phone_number,
+        to=recipient_phone_number
+    )
+
+    print("Message sent with SID:", message.sid)
+
 
 
 @app.route('/webhook', methods=['POST'])
-def webhook(store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_phone):
+def webhook():
     payload = request.json
+    data = request.get_json()
+    store_location = data.get('store_location')
+    delivery_location = data.get('delivery_location')
+    store_name = data.get('store_name')
+    pickup_phone = data.get('pickup_phone')
+    dropoff_name = data.get('dropoff_name')
+    dropoff_number = data.get('dropoff_number')
 
     if not authenticate_webhook(request):
         return jsonify({'success': False, 'message': 'Authentication failed'}), 401
@@ -31,17 +72,17 @@ def webhook(store_location, delivery_location, store_name, pickup_phone, dropoff
     print(event_name)
 
     if event_name == 'DASHER_CONFIRMED':
-        pass
+        send_updates(event_name)
     elif event_name == 'DASHER_CONFIRMED_PICKUP_ARRIVAL':
-        pass
+        send_updates(event_name)
     elif event_name == 'DASHER_PICKED_UP':
-        pass
+        send_updates(event_name)
     elif event_name == 'DASHER_CONFIRMED_DROPOFF_ARRIVAL':
-        pass
+        send_updates(event_name)
     elif event_name == 'DASHER_DROPPED_OFF':
-        pass
+        send_updates(event_name)
     else:
-        query_driver(store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_phone)
+        query_driver(store_location, delivery_location, store_name, pickup_phone, dropoff_name, dropoff_number)
 
 
     return jsonify({'success': True}), 200
