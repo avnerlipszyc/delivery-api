@@ -13,9 +13,9 @@ app = Flask(__name__)
 CORS(app)
 
 
-developer_id = '8e1c7316-e66d-49f9-b915-472e17579dfa'
-key_id = '9654ae50-782f-4576-83da-c019ed861b67'
-signing_secret = 'kSsOCEgGBbJ4vdxsUbDgZFO-3Cr_9sTuLIuJ8fDN6uI'
+developer_id = ''
+key_id = ''
+signing_secret = ''
 
 
 @app.route('/webhook', methods=['POST'])
