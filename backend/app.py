@@ -19,7 +19,7 @@ key_id = '9654ae50-782f-4576-83da-c019ed861b67'
 signing_secret = 'kSsOCEgGBbJ4vdxsUbDgZFO-3Cr_9sTuLIuJ8fDN6uI'
 
 account_sid = 'ACf16c24ad548522c4d85edf1268edf824'
-auth_token = 'b37c169908eb592a8f93ff117fc74b38'
+auth_token = '99f60665a2e32d0554e7247c74190158'
 twilio_phone_number = '+18447953246'
 
 # Function to send assignment message to driver via Twilio
