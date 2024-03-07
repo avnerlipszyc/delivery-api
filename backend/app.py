@@ -14,13 +14,13 @@ app = Flask(__name__)
 CORS(app)
 
 
-developer_id = '8e1c7316-e66d-49f9-b915-472e17579dfa'
-key_id = '9654ae50-782f-4576-83da-c019ed861b67'
-signing_secret = 'kSsOCEgGBbJ4vdxsUbDgZFO-3Cr_9sTuLIuJ8fDN6uI'
+developer_id = ''
+key_id = ''
+signing_secret = ''
 
-account_sid = 'ACf16c24ad548522c4d85edf1268edf824'
-auth_token = '99f60665a2e32d0554e7247c74190158'
-twilio_phone_number = '+18447953246'
+account_sid = ''
+auth_token = ''
+twilio_phone_number = ''
 
 # Function to send assignment message to driver via Twilio
 def send_updates(event_name):
